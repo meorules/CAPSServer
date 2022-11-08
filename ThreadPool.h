@@ -8,6 +8,7 @@
 class ThreadPool
 {
 public: 
+  
   ThreadPool(int numberOfThreads= std::thread::hardware_concurrency());
   ~ThreadPool(){}
   void QueueJob(const std::function<void()>& job);
@@ -35,6 +36,10 @@ inline ThreadPool::ThreadPool(int numberOfThreads = std::thread::hardware_concur
 
 inline void ThreadPool::ThreadLoop() {
   std::unique_lock <std::mutex> lock(queue_mutex);
+  while (jobQueue.size() < 1) {
+    cvJobQueue.wait(lock);
+  }
+  
   if (jobQueue.size() > 1) {
     std::function<void()> job;
     job = jobQueue.front();
@@ -43,9 +48,6 @@ inline void ThreadPool::ThreadLoop() {
   }
   else if (terminate) {
     return;
-  }
-  else{
-    cvJobQueue.wait(lock);
   }
 }
 

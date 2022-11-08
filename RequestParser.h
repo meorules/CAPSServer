@@ -3,67 +3,84 @@
 
 #include <string>
 
-class PostRequest
+class Request {
+public:
+	Request(bool valid): valid(valid){}
+	~Request();
+	virtual std::string toString() = 0;
+	virtual Request* parse(std::string request)=0;
+	virtual void doRequest() = 0;
+
+
+	bool valid;
+
+
+};
+
+class PostRequest : Request
 {
 public:
 	PostRequest();
 	~PostRequest();
-	static PostRequest parse(std::string request);
+	Request* parse(std::string request);
 	std::string getTopicId();
 	std::string getMessage();
 	std::string toString();
+	void doRequest();
 
 	std::string topicId;
 	std::string message;
-	bool valid;
 };
 
-class ReadRequest
+class ReadRequest : Request
 {
 public:
 	ReadRequest();
 	~ReadRequest();
-	static ReadRequest parse(std::string request);
+	Request* parse(std::string request);
 	std::string getTopicId();
 	int getPostId();
 	std::string toString();
+	void doRequest();
 
 	std::string topicId;
 	int postId;
-	bool valid;
 };
 
-class CountRequest
+class CountRequest : Request
 {
 public:
 	CountRequest();
 	~CountRequest();
-	static CountRequest parse(std::string request);
+	Request* parse(std::string request);
 	std::string getTopicId();
 	std::string toString();
+	void doRequest();
+
 
 	std::string topicId;
-	bool valid;
 };
 
-class ListRequest
+class ListRequest : Request
 {
 public:
 	ListRequest();
 	~ListRequest();
-	static ListRequest parse(std::string request);
+	Request* parse(std::string request);
 	std::string toString();
-	bool valid;
+	void doRequest();
+
 };
 
-class ExitRequest
+class ExitRequest : Request
 {
 public:
 	ExitRequest();
 	~ExitRequest();
-	static ExitRequest parse(std::string request);
+	Request* parse(std::string request);
 	std::string toString();
-	bool valid;
+	void doRequest();
+
 };
 
 #endif //__REQUESTPARSER_H
