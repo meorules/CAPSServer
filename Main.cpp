@@ -7,6 +7,7 @@
 #include <vector>
 
 #define DEFAULT_PORT 12345
+#define preMadeParser true
 
 
 bool terminateServer = false;
