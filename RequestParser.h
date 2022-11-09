@@ -9,7 +9,6 @@ public:
 	~Request();
 	virtual std::string toString() = 0;
 	virtual Request* parse(std::string request)=0;
-	virtual void doRequest() = 0;
 
 
 	bool valid;
@@ -26,7 +25,6 @@ public:
 	std::string getTopicId();
 	std::string getMessage();
 	std::string toString();
-	void doRequest();
 
 	std::string topicId;
 	std::string message;
@@ -41,7 +39,6 @@ public:
 	std::string getTopicId();
 	int getPostId();
 	std::string toString();
-	void doRequest();
 
 	std::string topicId;
 	int postId;
@@ -55,7 +52,6 @@ public:
 	Request* parse(std::string request);
 	std::string getTopicId();
 	std::string toString();
-	void doRequest();
 
 
 	std::string topicId;
@@ -68,7 +64,6 @@ public:
 	~ListRequest();
 	Request* parse(std::string request);
 	std::string toString();
-	void doRequest();
 
 };
 
@@ -79,7 +74,6 @@ public:
 	~ExitRequest();
 	Request* parse(std::string request);
 	std::string toString();
-	void doRequest();
 
 };
 

@@ -2,6 +2,7 @@
 #include "TCPClient.h"
 #include "ThreadPool.h"
 #include "RequestParser.h"
+#include "DataStructureAPI.h"
 #include <iostream>
 #include <algorithm>
 #include <string>
@@ -9,9 +10,14 @@
 #include <vector>
 
 /* To do List:
-- Finish creating the do request for the original request parser
+*
+- Create separate functions for parsing requests and also processing requests, that way they can be done independently or together if need be
+This will allow for the parts to work seamlessly and make it easier to test thread pooling vs just using normal threads more easily. 
 - Create a new request parser that works with strings
-- Create the class for the data strcuture which will work in the same way as an unordered_map
+- Custom data structure, an array containing an pointers for each topic to various arrays. 
+This will allow the arrays to be accessed on their own and the critical section to be very small, it also means
+once the pointer to the array of messages in a topic is found, it can unlock the "dictionary" array/ data structure 
+This will also mean another lock on the array for each specific topic. 
 - Test the thread-pooling for all the tasks, for split tasks and normal threading
 - Test the normal request parser vs Strings request parser
 - Test the std::unordered_map vs my own implementation
@@ -56,7 +62,7 @@ int main()
 	return 0;
 }
 
-PostRequest parseRequest(TCPServer* server, ReceivedSocketData&& data) {
+ReceivedSocketData&& parseRequest(TCPServer* server, ReceivedSocketData&& data) {
 	unsigned int socketIndex = (unsigned int)data.ClientSocket;
 
 	server->receiveData(data, 0);
