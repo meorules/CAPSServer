@@ -6,17 +6,19 @@
 class Request {
 public:
 	Request(bool valid): valid(valid){}
-	~Request();
+	~Request() {}
 	virtual std::string toString() = 0;
 	virtual Request* parse(std::string request)=0;
-
+	virtual std::string getTopicId() { return ""; }
+	virtual std::string getMessage() { return ""; }
+	virtual int getPostId() { return 0; }
 
 	bool valid;
 
 
 };
 
-class PostRequest : Request
+class PostRequest : public Request
 {
 public:
 	PostRequest();
@@ -30,7 +32,7 @@ public:
 	std::string message;
 };
 
-class ReadRequest : Request
+class ReadRequest : public Request
 {
 public:
 	ReadRequest();
@@ -44,7 +46,7 @@ public:
 	int postId;
 };
 
-class CountRequest : Request
+class CountRequest : public Request
 {
 public:
 	CountRequest();
@@ -57,7 +59,7 @@ public:
 	std::string topicId;
 };
 
-class ListRequest : Request
+class ListRequest : public Request
 {
 public:
 	ListRequest();
@@ -67,7 +69,7 @@ public:
 
 };
 
-class ExitRequest : Request
+class ExitRequest : public Request
 {
 public:
 	ExitRequest();

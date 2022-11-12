@@ -12,19 +12,18 @@ Request* PostRequest::parse(std::string request)
 {
 	std::regex postRegex("^POST(@[^@#]*)#(.+)$");
 	std::smatch postMatch;
-	PostRequest* post = new PostRequest();
 
 	if (!std::regex_match(request, postMatch, postRegex, std::regex_constants::match_default))
 	{
-		post->valid = 0;
-		return post;
+		this->valid = 0;
+		return this;
 	}
 
-	post->topicId = postMatch[1];
-	post->message = postMatch[2];
-	post->valid = 1;
+	this->topicId = postMatch[1];
+	this->message = postMatch[2];
+	this->valid = 1;
 
-	return post;
+	return this;
 }
 
 std::string PostRequest::getTopicId()
@@ -52,19 +51,18 @@ Request* ReadRequest::parse(std::string request)
 {
 	std::regex readRegex("^READ(@[^@#]*)#([0-9]+)$");
 	std::smatch readMatch;
-	ReadRequest* read = new ReadRequest();
 
 	if (!std::regex_match(request, readMatch, readRegex, std::regex_constants::match_default))
 	{
-		read->valid = 0;
-		return read;
+		this->valid = 0;
+		return this;
 	}
 
-	read->topicId = readMatch[1];
-	read->postId = std::stoi(readMatch[2]);
-	read->valid = 1;
+	this->topicId = readMatch[1];
+	this->postId = std::stoi(readMatch[2]);
+	this->valid = 1;
 
-	return read;
+	return this;
 }
 
 std::string ReadRequest::getTopicId()
@@ -92,18 +90,17 @@ Request* CountRequest::parse(std::string request)
 {
 	std::regex countRegex("^COUNT(@[^@#]*)$");
 	std::smatch countMatch;
-	CountRequest* count= new CountRequest();
 
 	if (!std::regex_match(request, countMatch, countRegex, std::regex_constants::match_default))
 	{
-		count->valid = 0;
-		return count;
+		this->valid = 0;
+		return this;
 	}
 
-	count->topicId = countMatch[1];
-	count->valid = 1;
+	this->topicId = countMatch[1];
+	this->valid = 1;
 
-	return count;
+	return this;
 }
 
 std::string CountRequest::getTopicId()
@@ -126,17 +123,16 @@ Request* ListRequest::parse(std::string request)
 {
 	std::regex listRegex("^LIST$");
 	std::smatch listMatch;
-	ListRequest* list = new ListRequest();
 
 	if (!std::regex_match(request, listMatch, listRegex, std::regex_constants::match_default))
 	{
-		list->valid = 0;
-		return list;
+		this->valid = 0;
+		return this;
 	}
 
-	list->valid = 1;
+	this->valid = 1;
 
-	return list;
+	return this;
 }
 
 std::string ListRequest::toString()
@@ -154,17 +150,16 @@ Request* ExitRequest::parse(std::string request)
 {
 	std::regex exitRegex("^EXIT$");
 	std::smatch exitMatch;
-	ExitRequest* exitReq = new ExitRequest();
 
 	if (!std::regex_match(request, exitMatch, exitRegex, std::regex_constants::match_default))
 	{
-		exitReq->valid = 0;
-		return exitReq;
+		this->valid = 0;
+		return this;
 	}
 
-	exitReq->valid = 1;
+	this->valid = 1;
 
-	return exitReq;
+	return this;
 }
 
 std::string ExitRequest::toString()

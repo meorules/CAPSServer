@@ -39,23 +39,34 @@ inline UnorderedMap::~UnorderedMap() {
  */
 inline int UnorderedMap::PostFunction(string topic, string message)
 {
-  if (structNotEmpty){
-    vector<string>* topicArray;
+  vector<string>* topicArray;
+  if (structNotEmpty()) {
     if (TopicExists(topic)) {
-      unique_lock(lock);
+      std::unique_lock<std::shared_mutex> mutex(lock);
       topicArray = dataStructure->at(topic);
       topicArray->push_back(message);
+      return topicArray->size() - 1;
     }
     else {
-      unique_lock(lock);
+      std::unique_lock<std::shared_mutex> mutex(lock);
       topicArray = new vector<string>;
       topicArray->push_back(message);
 
       dataStructure->insert({ topic, topicArray });
+      return topicArray->size() - 1;
     }
+  }
+  else {
+    std::unique_lock<std::shared_mutex> mutex(lock);
+    topicArray = new vector<string>;
+    topicArray->push_back(message);
+
+    dataStructure->insert({ topic, topicArray });
     return topicArray->size() - 1;
+
   }
 
+  
 }
 
 
@@ -65,14 +76,17 @@ inline int UnorderedMap::PostFunction(string topic, string message)
 inline string UnorderedMap::ListFunction()
 {
   string topicList = "";
-  if (structNotEmpty) {
+  if (structNotEmpty()) {
     {
-      shared_lock(lock);
+      shared_lock<shared_mutex> mutex(lock);
       unordered_map<string, vector<string>*>::iterator it = dataStructure->begin();
       while (it != dataStructure->end()) {
-        topicList.append("@" + it->first + "#");
+        topicList.append(it->first + "#");
         it++;
       }
+    }
+    if (topicList != "") {
+      topicList.pop_back();
     }
   }
   return topicList;
@@ -88,9 +102,9 @@ inline string UnorderedMap::ListFunction()
 inline int UnorderedMap::CountFunction(string topic)
 {
   int messageCount = 0;
-  if (structNotEmpty) {
+  if (structNotEmpty()) {
     if (TopicExists(topic)) {
-      shared_lock(lock);
+      shared_lock<shared_mutex> mutex(lock);
       messageCount = dataStructure->at(topic)->size();
     }
   }
@@ -106,9 +120,9 @@ inline int UnorderedMap::CountFunction(string topic)
 inline string UnorderedMap::ReadFunction(string topic, int messagedID)
 {
   string message="";
-  if (structNotEmpty) {
+  if (structNotEmpty()) {
     if (TopicExists(topic)) {
-      shared_lock(lock);
+      shared_lock<shared_mutex> mutex(lock);
       if (dataStructure->at(topic)->size() > messagedID) {
         message = dataStructure->at(topic)->at(messagedID);
       }
@@ -123,14 +137,14 @@ inline string UnorderedMap::ReadFunction(string topic, int messagedID)
  */
 inline bool UnorderedMap::TopicExists(string topic) {
   {
-    shared_lock(lock);
+    shared_lock<shared_mutex> mutex(lock);
     return dataStructure->contains(topic);
   }
 }
 
 inline bool UnorderedMap::structNotEmpty() {
   {
-    shared_lock(lock);
+    shared_lock<shared_mutex> mutex(lock);
     return !dataStructure->empty();
   }
 }

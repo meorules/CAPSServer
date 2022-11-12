@@ -1,8 +1,9 @@
 #include "TCPServer.h"
 #include "TCPClient.h"
-#include "ThreadPool.h"
+//#include "ThreadPool.h"
 #include "RequestParser.h"
 #include "DataStructureAPI.h"
+#include "UnorderedMap.h"
 #include <iostream>
 #include <algorithm>
 #include <string>
@@ -11,13 +12,13 @@
 
 /* To do List:
 *
-- Create separate functions for parsing requests and also processing requests, that way they can be done independently or together if need be
-This will allow for the parts to work seamlessly and make it easier to test thread pooling vs just using normal threads more easily. 
+* 
 - Create a new request parser that works with strings
 - Custom data structure, an array containing an pointers for each topic to various arrays. 
 This will allow the arrays to be accessed on their own and the critical section to be very small, it also means
 once the pointer to the array of messages in a topic is found, it can unlock the "dictionary" array/ data structure 
-This will also mean another lock on the array for each specific topic. 
+This will also mean another lock on the array for each specific topic.
+-Lock free Data Structure - https://github.com/Qarterd/Honeycomb/blob/master/src/common/Honey/Thread/LockFree/UnorderedMap.h
 - Test the thread-pooling for all the tasks, for split tasks and normal threading
 - Test the normal request parser vs Strings request parser
 - Test the std::unordered_map vs my own implementation
@@ -26,17 +27,113 @@ This will also mean another lock on the array for each specific topic.
 #define DEFAULT_PORT 12345
 #define preMadeParser true
 
+DataStructureAPI* dataStructure = new UnorderedMap();
 
 bool terminateServer = false;
 
+
+void parseRequest(TCPServer* server, ReceivedSocketData&& data) {
+	unsigned int socketIndex = (unsigned int)data.ClientSocket;
+	bool requestProcessed = false;
+
+
+	do {
+		server->receiveData(data, 0);
+
+
+
+		PostRequest* request = new PostRequest();
+		request->parse(data.request);
+
+		if (request->valid)
+		{
+			int id = dataStructure->PostFunction(request->getTopicId(), request->getMessage());
+			data.reply = to_string(id);
+			requestProcessed = true;
+		}
+
+
+		if (!requestProcessed) {
+			ReadRequest* request = new ReadRequest();
+			request->parse(data.request);
+			if (request->valid)
+			{
+
+				string message = dataStructure->ReadFunction(request->getTopicId(), request->getPostId());
+				data.reply = message;
+				requestProcessed = true;
+			}
+		}
+
+		if (!requestProcessed) {
+			ListRequest* request = new ListRequest();
+			request->parse(data.request);
+			if (request->valid)
+			{
+				string topicList = dataStructure->ListFunction();
+				data.reply = topicList;
+				requestProcessed = true;
+
+			}
+		}
+
+		if (!requestProcessed) {
+			CountRequest* request = new CountRequest();
+			request->parse(data.request);
+			if (request->valid)
+			{
+
+				int noOfMessages = dataStructure->CountFunction(request->getTopicId());
+				data.reply = std::to_string(noOfMessages);
+				requestProcessed = true;
+
+			}
+		}
+
+
+
+		if (!requestProcessed) {
+			ExitRequest* request = new ExitRequest();
+			request->parse(data.request);
+			if (request->valid)
+			{
+				terminateServer = true;
+				data.reply = "Terminating";
+				requestProcessed = true;
+
+			}
+		}
+
+		if (requestProcessed) {
+			server->sendReply(data);
+		}
+		request = NULL;
+		requestProcessed = false;
+
+	} while (data.request != "exit" && data.request != "EXIT" && !terminateServer);
+	if (!terminateServer && (data.request == "exit" || data.request == "EXIT"))
+	{
+		terminateServer = true;
+
+		TCPClient tempClient(std::string("127.0.0.1"), DEFAULT_PORT);
+		tempClient.OpenConnection();
+		tempClient.CloseConnection();
+	}
+
+	server->closeClientSocket(data);
+
+	//server->closeClientSocket(data);
+
+}
 
 int main()
 {
 	TCPServer server(DEFAULT_PORT);
 
+
 	ReceivedSocketData receivedData;
-	ThreadPool* threadPool = new ThreadPool();
-	//std::vector<std::thread> serverThreads;
+	//ThreadPool* threadPool = new ThreadPool();
+	std::vector<std::thread> serverThreads;
 
 	std::cout << "Starting server. Send \"exit\" (without quotes) to terminate." << std::endl;
 
@@ -49,59 +146,22 @@ int main()
 
 			//parse the data and then do something with it
 			//serverThreads.emplace_back(serverThreadFunction, &server, receivedData);
+			// 
 			//The function first and then the arguements
+			/*serverThreads.emplace_back(parseRequest, &server, receivedData);*/
+			serverThreads.emplace_back(parseRequest, &server, receivedData);
+			//threadPool->QueueJob(parseRequest, &server, receivedData);
+			//parseRequest(&server, receivedData);
 		}
 	}
 
 
-	/*for (auto& th : serverThreads)
-		th.join();*/
+	for (auto& th : serverThreads)
+		th.join();
+
+	//threadPool->Stop();
 
 	std::cout << "Server terminated." << std::endl;
-	delete threadPool;
+	//delete threadPool;
 	return 0;
 }
-
-ReceivedSocketData&& parseRequest(TCPServer* server, ReceivedSocketData&& data) {
-	unsigned int socketIndex = (unsigned int)data.ClientSocket;
-
-	server->receiveData(data, 0);
-	/*PostRequest post = PostRequest::parse(data.request);
-	if (post.valid)
-	{
-		std::cout << "Post request: " << post.toString() << std::endl;
-		std::cout << "Post topic: " << post.getTopicId() << std::endl;
-		std::cout << "Post message: " << post.getMessage() << std::endl;
-	}
-
-	ReadRequest read = ReadRequest::parse(data.request);
-	if (read.valid)
-	{
-		std::cout << "Read request" << read.toString() << std::endl;
-		std::cout << "Read topic: " << read.getTopicId() << std::endl;
-		std::cout << "Read post id: " << read.getPostId() << std::endl;
-		
-	}
-	CountRequest count = CountRequest::parse(data.request);
-	if (count.valid)
-	{
-		std::cout << "Count request: " << count.toString() << std::endl;
-		std::cout << "Count topic: " << count.getTopicId() << std::endl;
-	}
-
-	ListRequest list = ListRequest::parse(data.request);
-	if (list.valid)
-	{
-		std::cout << "List request: " << list.toString() << std::endl;
-	}
-
-	ExitRequest exitReq = ExitRequest::parse(data.request);
-	if (exitReq.valid)
-	{
-		std::cout << "Exit request: " << exitReq.toString() << std::endl;
-
-	}*/
-
-	
-}
-
