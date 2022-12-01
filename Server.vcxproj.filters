@@ -36,6 +36,12 @@
     <ClInclude Include="UnorderedMap.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="StringRequestParser.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ParsedRequest.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="TCPClient.cpp">
@@ -48,6 +54,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="RequestParser.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="StringRequestParser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

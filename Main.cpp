@@ -2,6 +2,7 @@
 #include "TCPClient.h"
 //#include "ThreadPool.h"
 #include "RequestParser.h"
+#include "StringRequestParser.h"
 #include "DataStructureAPI.h"
 #include "UnorderedMap.h"
 #include <iostream>
@@ -14,7 +15,7 @@
 *
 * 
 - Create a new request parser that works with strings
-- Custom data structure, an array containing an pointers for each topic to various arrays. 
+- Custom data structure, an array containing a pointer for each topic to various arrays. 
 This will allow the arrays to be accessed on their own and the critical section to be very small, it also means
 once the pointer to the array of messages in a topic is found, it can unlock the "dictionary" array/ data structure 
 This will also mean another lock on the array for each specific topic.
@@ -25,22 +26,23 @@ This will also mean another lock on the array for each specific topic.
 */
 
 #define DEFAULT_PORT 12345
-#define preMadeParser true
+//#define preMadeParser
 
 DataStructureAPI* dataStructure = new UnorderedMap();
 
 bool terminateServer = false;
 
 
+
+
 void parseRequest(TCPServer* server, ReceivedSocketData&& data) {
 	unsigned int socketIndex = (unsigned int)data.ClientSocket;
-	bool requestProcessed = false;
-
-
+	
 	do {
-		server->receiveData(data, 0);
+		server->receiveData(data, false);
 
-
+#ifdef preMadeParser
+		bool requestProcessed = false;
 
 		PostRequest* request = new PostRequest();
 		request->parse(data.request);
@@ -90,8 +92,6 @@ void parseRequest(TCPServer* server, ReceivedSocketData&& data) {
 			}
 		}
 
-
-
 		if (!requestProcessed) {
 			ExitRequest* request = new ExitRequest();
 			request->parse(data.request);
@@ -104,11 +104,56 @@ void parseRequest(TCPServer* server, ReceivedSocketData&& data) {
 			}
 		}
 
+		requestProcessed = true;
+
 		if (requestProcessed) {
 			server->sendReply(data);
-		}
+	}
 		request = NULL;
 		requestProcessed = false;
+
+	//server->closeClientSocket(data);
+#else
+		StringRequestParser parser;
+		ParsedRequest* request;
+		request = parser.parseRequest(data.request);
+		/*enum requestToBeParsed {
+			notSet, post, read, list, count, exit
+		};*/
+		switch (request->requestCommand) {
+		case requestToBeParsed::notSet: {
+			data.reply = "";
+			break;
+		}
+		case requestToBeParsed::post: {
+			int id = dataStructure->PostFunction(request->getTopic(), request->getMessage());
+			data.reply = to_string(id);
+			break;
+		}
+		case requestToBeParsed::read: {
+			string message = dataStructure->ReadFunction(request->getTopic(), request->getMessageID());
+			data.reply = message;
+			break;
+		}
+		case requestToBeParsed::list: {
+			string topicList = dataStructure->ListFunction();
+			data.reply = topicList;
+			break;
+		}
+		case requestToBeParsed::count: {
+			int noOfMessages = dataStructure->CountFunction(request->getTopic());
+			data.reply = std::to_string(noOfMessages);
+			break;
+		}
+		case requestToBeParsed::ex: {
+			data.reply = "Terminating";
+			break;
+		}
+		}
+		server->sendReply(data);
+		
+#endif
+	
 
 	} while (data.request != "exit" && data.request != "EXIT" && !terminateServer);
 	if (!terminateServer && (data.request == "exit" || data.request == "EXIT"))
@@ -121,8 +166,6 @@ void parseRequest(TCPServer* server, ReceivedSocketData&& data) {
 	}
 
 	server->closeClientSocket(data);
-
-	//server->closeClientSocket(data);
 
 }
 
