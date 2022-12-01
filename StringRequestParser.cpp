@@ -13,8 +13,12 @@ ParsedRequest* StringRequestParser::parseRequest(string request)
   toBeReturned->message;
 
   if (request != "") {
-    if (request != "EXIT" && request!= "exit")
+    if (request == "EXIT" && request== "exit")
     {
+      toBeReturned->requestCommand = requestToBeParsed::ex;
+      return toBeReturned;
+    }
+    else {
       if (request == "LIST") {
         toBeReturned->requestCommand = requestToBeParsed::list;
         return toBeReturned;
@@ -28,12 +32,12 @@ ParsedRequest* StringRequestParser::parseRequest(string request)
               int hashFound = messagePart.find('#');
               if (hashFound != -1) {
                 toBeReturned->topicId = messagePart.substr(0, hashFound);
-                toBeReturned->message = messagePart.substr(hashFound+1);
+                toBeReturned->message = messagePart.substr(hashFound + 1);
               }
             }
           }
 
-         }
+        }
         else if (request[0] == 'R') {
           if (request.size() >= 7) {
             if (request[1] == 'E' && request[2] == 'A' && request[3] == 'D' && request[4] == '@') {
@@ -42,7 +46,7 @@ ParsedRequest* StringRequestParser::parseRequest(string request)
               int hashFound = messagePart.find('#');
               if (hashFound != -1) {
                 toBeReturned->topicId = messagePart.substr(0, hashFound);
-                toBeReturned->messageID = stoi(messagePart.substr(hashFound+1));
+                toBeReturned->messageID = stoi(messagePart.substr(hashFound + 1));
               }
             }
           }
@@ -50,7 +54,7 @@ ParsedRequest* StringRequestParser::parseRequest(string request)
         }
         else if (request[0] == 'C') {
           if (request.size() >= 6) {
-            if (request[1] == 'O' && request[2] == 'U' && request[3] == 'N' && request[4] == 'T' && request[5]=='@') {
+            if (request[1] == 'O' && request[2] == 'U' && request[3] == 'N' && request[4] == 'T' && request[5] == '@') {
               toBeReturned->requestCommand = requestToBeParsed::count;
               toBeReturned->topicId = request.substr(5);
             }
@@ -58,11 +62,6 @@ ParsedRequest* StringRequestParser::parseRequest(string request)
 
         }
       }
-
-    }
-    else {
-      toBeReturned->requestCommand = requestToBeParsed::ex;
-      return toBeReturned;
     }
   }
 

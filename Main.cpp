@@ -40,9 +40,10 @@ void parseRequest(TCPServer* server, ReceivedSocketData&& data) {
 	
 	do {
 		server->receiveData(data, false);
-
-#ifdef preMadeParser
 		bool requestProcessed = false;
+
+	#ifdef preMadeParser
+		
 
 		PostRequest* request = new PostRequest();
 		request->parse(data.request);
@@ -104,16 +105,16 @@ void parseRequest(TCPServer* server, ReceivedSocketData&& data) {
 			}
 		}
 
-		requestProcessed = true;
+		
 
 		if (requestProcessed) {
 			server->sendReply(data);
-	}
+		}
 		request = NULL;
 		requestProcessed = false;
 
 	//server->closeClientSocket(data);
-#else
+	#else
 		StringRequestParser parser;
 		ParsedRequest* request;
 		request = parser.parseRequest(data.request);
@@ -123,36 +124,45 @@ void parseRequest(TCPServer* server, ReceivedSocketData&& data) {
 		switch (request->requestCommand) {
 		case requestToBeParsed::notSet: {
 			data.reply = "";
+			requestProcessed = true;
 			break;
 		}
 		case requestToBeParsed::post: {
 			int id = dataStructure->PostFunction(request->getTopic(), request->getMessage());
 			data.reply = to_string(id);
+			requestProcessed = true;
 			break;
 		}
 		case requestToBeParsed::read: {
 			string message = dataStructure->ReadFunction(request->getTopic(), request->getMessageID());
 			data.reply = message;
+			requestProcessed = true;
 			break;
 		}
 		case requestToBeParsed::list: {
 			string topicList = dataStructure->ListFunction();
 			data.reply = topicList;
+			requestProcessed = true;
 			break;
 		}
 		case requestToBeParsed::count: {
 			int noOfMessages = dataStructure->CountFunction(request->getTopic());
 			data.reply = std::to_string(noOfMessages);
+			requestProcessed = true;
 			break;
 		}
 		case requestToBeParsed::ex: {
 			data.reply = "Terminating";
+			terminateServer = true;
+			requestProcessed = true;
 			break;
 		}
 		}
-		server->sendReply(data);
+		if (requestProcessed) {
+			server->sendReply(data);
+		}
 		
-#endif
+	#endif
 	
 
 	} while (data.request != "exit" && data.request != "EXIT" && !terminateServer);
