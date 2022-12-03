@@ -129,6 +129,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="CustomMap.h" />
     <ClInclude Include="DataStructureAPI.h" />
     <ClInclude Include="ParsedRequest.h" />
     <ClInclude Include="ReceivedSocketData.h" />

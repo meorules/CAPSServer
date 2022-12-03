@@ -49,7 +49,7 @@ private:
 
 protected:
   shared_mutex lock;
-  
+
 };
 
 inline DataStructureAPI::DataStructureAPI()

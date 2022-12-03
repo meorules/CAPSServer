@@ -21,6 +21,7 @@ private:
   unordered_map<string, vector<string>*>* dataStructure;
   bool structNotEmpty();
 
+
 };
 
 inline UnorderedMap::UnorderedMap() {

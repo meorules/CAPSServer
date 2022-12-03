@@ -13,8 +13,6 @@
 
 /* To do List:
 *
-* 
-- Create a new request parser that works with strings
 - Custom data structure, an array containing a pointer for each topic to various arrays. 
 This will allow the arrays to be accessed on their own and the critical section to be very small, it also means
 once the pointer to the array of messages in a topic is found, it can unlock the "dictionary" array/ data structure 
