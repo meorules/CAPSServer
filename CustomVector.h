@@ -15,6 +15,12 @@ public:
 
   }
 
+  CustomVector(CustomVector& vec) {
+    capacity = vec.capacity;
+    size = vec.size;
+    array = vec.array;
+  }
+
   ~CustomVector() {
     delete array;
 

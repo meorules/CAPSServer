@@ -2,18 +2,18 @@
 #include <shared_mutex>
 
 
-template<typename k,typename v>
+template<typename v>
 class HashNode
 {
 public:
 
-  HashNode() {
-    key = NULL;
-    value = NULL;
+  HashNode(string key) {
+    this->key = key;
+    value = new v();
     nextNode = nullptr;
   }
 
-  HashNode(k keyToSet, v valueToSet) {
+  HashNode(string keyToSet, v valueToSet) {
     key = keyToSet;
     value = valueToSet;
     nextNode = nullptr;
@@ -25,22 +25,22 @@ public:
     delete nextNode;
   }
 
-  k getKey() {
+  string getKey() {
     std::shared_lock<std::shared_mutex> mutex(lock);
     return key;
   }
 
-  v getValue() {
+  v* getValue() {
     std::shared_lock<std::shared_mutex> mutex(lock);
     return value;
   }
 
-  HashNode<k, v>* getNext() {
+  HashNode<v>* getNext() {
     std::shared_lock<std::shared_mutex> mutex(lock);
     return nextNode;
   }
 
-  void setNext(HashNode<k, v>* nodeToSet) {
+  void setNext(HashNode<v>* nodeToSet) {
     std::unique_lock<std::shared_mutex> mutex(lock);
     nextNode = nodeToSet;
   }
@@ -48,10 +48,10 @@ public:
   std::shared_mutex lock;
 
 private:
-  k key;
-  v value;
+  string key;
+  v* value;
 
-  HashNode<k,v>* nextNode;
+  HashNode<v>* nextNode;
 
 
 

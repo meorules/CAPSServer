@@ -21,7 +21,7 @@ public:
 
 
 private:
-  CustomVector<HashNode<std::string,CustomVector<std::string>>>* vec;
+  CustomVector<HashNode<CustomVector<std::string>>>* vec;
   unsigned int hash(std::string str);
 
   //std::string stringToChar(string toConvert);
@@ -30,7 +30,7 @@ private:
 };
 
 inline CustomMap::CustomMap() {
-  vec = new CustomVector<HashNode<std::string, CustomVector<std::string>>>(100000);
+  vec = new CustomVector<HashNode<CustomVector<std::string>>>(100000);
 
 }
 inline CustomMap::~CustomMap() {
@@ -47,7 +47,7 @@ inline int CustomMap::PostFunction(string topic, string message)
 {
 
 
-  HashNode<std::string, CustomVector<std::string>>* topicArray;
+  HashNode<CustomVector<std::string>>* topicArray;
   int index = hash(topic);
 
 
@@ -62,17 +62,17 @@ inline int CustomMap::PostFunction(string topic, string message)
             topicArray = topicArray->getNext();
           }
           if (topicArray->getKey() == topic) {
-            topicArray->getValue().push(message);
-            return topicArray->getValue().getCapacity() - 1;
+            topicArray->getValue()->push(message);
+            return topicArray->getValue()->getCapacity() - 1;
           }
         }
       }
     }
     else {
-      HashNode<std::string, CustomVector<std::string>>* topicArray = new HashNode<std::string, CustomVector<std::string>>(topic, CustomVector<std::string>(100));
-        topicArray->getValue().push(message);
+      HashNode<CustomVector<std::string>>* topicArray = new HashNode<CustomVector<std::string>>(topic);
+        topicArray->getValue()->push(message);
       {
-        HashNode<std::string, CustomVector<std::string>>* currentArray = vec->getItem(index);
+        HashNode<CustomVector<std::string>>* currentArray = vec->getItem(index);
         if (currentArray == nullptr) {
           vec->insert(topicArray, index);
         }
@@ -94,7 +94,7 @@ inline int CustomMap::PostFunction(string topic, string message)
  */
 inline string CustomMap::ListFunction()
 {
-  HashNode<std::string, CustomVector<std::string>>* topicArray;
+  HashNode<CustomVector<std::string>>* topicArray;
   string topicList = ""; 
   int vecSize = 0;
   if (structNotEmpty()) {
@@ -127,7 +127,7 @@ inline string CustomMap::ListFunction()
  */
 inline int CustomMap::CountFunction(string topic)
 {
-  HashNode<std::string, CustomVector<std::string>>* currentArray;
+  HashNode<CustomVector<std::string>>* currentArray;
   bool found = false;
 
   int messageCount = 0;
@@ -140,7 +140,7 @@ inline int CustomMap::CountFunction(string topic)
       if (currentArray != nullptr) {
         do {
           if (currentArray->getKey() == topic) {
-            messageCount = currentArray->getValue().getCapacity();
+            messageCount = currentArray->getValue()->getCapacity();
             found = true;
           }
           else {
@@ -164,7 +164,7 @@ inline int CustomMap::CountFunction(string topic)
 inline string CustomMap::ReadFunction(string topic, int messagedID)
 {
   
-  HashNode<std::string, CustomVector<std::string>>* currentArray;
+  HashNode<CustomVector<std::string>>* currentArray;
   string  message = "";
   bool found = false;
 
@@ -178,7 +178,7 @@ inline string CustomMap::ReadFunction(string topic, int messagedID)
         do {
           if (currentArray->getKey() == topic) {
 
-            message = *currentArray->getValue().getItem(messagedID);
+            message = *currentArray->getValue()->getItem(messagedID);
             found = true;
           }
           else {
@@ -201,7 +201,7 @@ inline string CustomMap::ReadFunction(string topic, int messagedID)
 inline bool CustomMap::TopicExists(string topic) {
   
     if (structNotEmpty()) {
-      HashNode<std::string, CustomVector<std::string>>* topicArray;
+      HashNode<CustomVector<std::string>>* topicArray;
 
       int index = hash(topic);
       {
