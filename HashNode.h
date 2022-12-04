@@ -26,18 +26,22 @@ public:
   }
 
   k getKey() {
+    std::shared_lock<std::shared_mutex> mutex(lock);
     return key;
   }
 
   v getValue() {
-    return v;
+    std::shared_lock<std::shared_mutex> mutex(lock);
+    return value;
   }
 
   HashNode<k, v>* getNext() {
+    std::shared_lock<std::shared_mutex> mutex(lock);
     return nextNode;
   }
 
   void setNext(HashNode<k, v>* nodeToSet) {
+    std::unique_lock<std::shared_mutex> mutex(lock);
     nextNode = nodeToSet;
   }
 

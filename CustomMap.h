@@ -5,6 +5,7 @@
 #include "HashNode.h"
 
 
+
 class CustomMap :
     public DataStructureAPI
 {
@@ -20,15 +21,16 @@ public:
 
 
 private:
-  CustomVector<HashNode<char*,CustomVector<char*>>>* vec;
-  unsigned int hash(char* str);
+  CustomVector<HashNode<std::string,CustomVector<std::string>>>* vec;
+  unsigned int hash(std::string str);
 
+  //std::string stringToChar(string toConvert);
   bool structNotEmpty();
 
 };
 
 inline CustomMap::CustomMap() {
-  vec = new CustomVector<HashNode<char*, CustomVector<char*>>>(100000);
+  vec = new CustomVector<HashNode<std::string, CustomVector<std::string>>>(100000);
 
 }
 inline CustomMap::~CustomMap() {
@@ -44,85 +46,76 @@ inline CustomMap::~CustomMap() {
 inline int CustomMap::PostFunction(string topic, string message)
 {
 
-  char* topicChars = new char[topic.length() + 1];
-  strcpy(topicChars, topic.c_str());
-  char* messageChars = new char[topic.length() + 1];
-  strcpy(messageChars, topic.c_str());
 
-  HashNode<char*, CustomVector<char*>>* topicArray;
+  HashNode<std::string, CustomVector<std::string>>* topicArray;
+  int index = hash(topic);
 
 
-  if (structNotEmpty()) {
     if (TopicExists(topic)) {
-      int index = hash(topicChars);
       {
-        std::shared_lock<std::shared_mutex> mutex(lock);
         topicArray = vec->getItem(index);
 
       }
-      {
-        std::unique_lock<std::shared_mutex> mutex(topicArray->lock);
-        while (topicArray->getKey() != topicChars || topicArray->getNext() != nullptr) {
-          topicArray = topicArray->getNext();
-        }
-        if (topicArray->getKey() == topicChars) {
-          topicArray->getValue().push(messageChars);
-          delete[] topicChars;
-          delete[] messageChars;
-          return topicArray->getValue().getCapacity() - 1;
+      if (topicArray != nullptr) {
+        {
+          while (topicArray->getKey() != topic || topicArray->getNext() != nullptr) {
+            topicArray = topicArray->getNext();
+          }
+          if (topicArray->getKey() == topic) {
+            topicArray->getValue().push(message);
+            return topicArray->getValue().getCapacity() - 1;
+          }
         }
       }
     }
     else {
-      CustomVector<char*> topicMessages = CustomVector<char*>(100);
-      topicMessages.push(messageChars);
-      HashNode<char*, CustomVector<char*>>* topicArray = new HashNode<char*, CustomVector<char*>>(topicChars, topicMessages);
-      int index = hash(topicChars);
-      HashNode<char*, CustomVector<char*>>* currentArray = vec->getItem(index);
+      HashNode<std::string, CustomVector<std::string>>* topicArray = new HashNode<std::string, CustomVector<std::string>>(topic, CustomVector<std::string>(100));
+        topicArray->getValue().push(message);
       {
-        std::unique_lock<std::shared_mutex> mutex(lock);
-        if (currentArray == NULL) {
+        HashNode<std::string, CustomVector<std::string>>* currentArray = vec->getItem(index);
+        if (currentArray == nullptr) {
           vec->insert(topicArray, index);
-          delete[] topicChars;
-          delete[] messageChars;
         }
         else {
           while (currentArray->getNext() != nullptr) {
             currentArray = currentArray->getNext();
           }
           currentArray->setNext(topicArray);
-          delete[] topicChars;
-          delete[] messageChars;
         }
-        return topicMessages.getCapacity() - 1;
+        return 0;
       }
     }
-
-  }
 
 }
 
 
 /**
- * @return a string containing the topics list seperated by @ and #
+ * @return a string containing the topics list seperated by #
  */
 inline string CustomMap::ListFunction()
 {
-  /*string topicList = "";
+  HashNode<std::string, CustomVector<std::string>>* topicArray;
+  string topicList = ""; 
+  int vecSize = 0;
   if (structNotEmpty()) {
-    {
-      shared_lock<shared_mutex> mutex(lock);
-      unordered_map<string, vector<string>*>::iterator it = dataStructure->begin();
-      while (it != dataStructure->end()) {
-        topicList.append(it->first + "#");
-        it++;
+    int i = 0;
+    int vecSize = vec->getSize();
+    while (i < vecSize) {
+      {
+        topicArray = vec->getItem(i);
       }
-    }
-    if (topicList != "") {
-      topicList.pop_back();
+      if (topicArray != nullptr) {
+        do {
+          topicList.append(topicArray->getKey());
+          topicList.append("#");
+          topicArray = topicArray->getNext();
+        } while (topicArray != nullptr);
+      }
+      i++;
     }
   }
-  return topicList;*/
+  return topicList;
+
 
 }
 
@@ -134,14 +127,32 @@ inline string CustomMap::ListFunction()
  */
 inline int CustomMap::CountFunction(string topic)
 {
-  /*int messageCount = 0;
-  if (structNotEmpty()) {
+  HashNode<std::string, CustomVector<std::string>>* currentArray;
+  bool found = false;
+
+  int messageCount = 0;
+  
     if (TopicExists(topic)) {
-      shared_lock<shared_mutex> mutex(lock);
-      messageCount = dataStructure->at(topic)->size();
+      int index = hash(topic);
+      {
+        currentArray = vec->getItem(index);
+      }
+      if (currentArray != nullptr) {
+        do {
+          if (currentArray->getKey() == topic) {
+            messageCount = currentArray->getValue().getCapacity();
+            found = true;
+          }
+          else {
+            if (currentArray->getNext() != nullptr) {
+              currentArray = currentArray->getNext();
+            }
+          }
+        } while (!found);
+      }
     }
-  }
-  return messageCount;*/
+  
+  return messageCount;
 
 }
 
@@ -152,16 +163,35 @@ inline int CustomMap::CountFunction(string topic)
  */
 inline string CustomMap::ReadFunction(string topic, int messagedID)
 {
-  /*string message="";
-  if (structNotEmpty()) {
+  
+  HashNode<std::string, CustomVector<std::string>>* currentArray;
+  string  message = "";
+  bool found = false;
+
+  
     if (TopicExists(topic)) {
-      shared_lock<shared_mutex> mutex(lock);
-      if (dataStructure->at(topic)->size() > messagedID) {
-        message = dataStructure->at(topic)->at(messagedID);
+      int index = hash(topic);
+      {
+        currentArray = vec->getItem(index);
+      }
+      if (currentArray != nullptr) {
+        do {
+          if (currentArray->getKey() == topic) {
+
+            message = *currentArray->getValue().getItem(messagedID);
+            found = true;
+          }
+          else {
+            if (currentArray->getNext() != nullptr) {
+              currentArray = currentArray->getNext();
+            }
+          }
+        } while (!found);
       }
     }
-  }
-  return message;*/
+  
+
+  return message;
 }
 
 /**
@@ -169,36 +199,33 @@ inline string CustomMap::ReadFunction(string topic, int messagedID)
  * @return bool value, True if the topic is found, False if the topic does not exist
  */
 inline bool CustomMap::TopicExists(string topic) {
-  {
-    //shared_lock<shared_mutex> mutex(lock);
+  
+    if (structNotEmpty()) {
+      HashNode<std::string, CustomVector<std::string>>* topicArray;
 
-    char* chars = new char[topic.length() + 1];
+      int index = hash(topic);
+      {
+        topicArray = vec->getItem(index);
+      }
+      {
+        if (topicArray != nullptr) {
 
-    strcpy(chars, topic.c_str());
-    HashNode<char*, CustomVector<char*>>* topicArray;
+          while (topicArray->getKey() != topic || topicArray->getNext() != nullptr) {
+            topicArray = topicArray->getNext();
+          }
+          if (topicArray->getKey() == topic) {
+            return true;
+          }
+          else {
+            return false;
+          }
 
-    int index = hash(chars);
-    {
-      shared_lock<shared_mutex> mutex(lock);
-      topicArray = vec->getItem(index);
+        }}
     }
-    {
-      shared_lock<shared_mutex> mutex(topicArray->lock);
-
-      while (topicArray->getKey() != chars || topicArray->getNext() != nullptr) {
-        topicArray = topicArray->getNext();
-      }
-      if (topicArray->getKey() == chars) {
-        delete[] chars;
-        return true;
-      }
-      else {
-        delete[] chars;
-        return false;
-      }
+    else {
+      return false;
     }
-
-  }
+  
 }
 
 inline bool CustomMap::structNotEmpty() {
@@ -206,17 +233,25 @@ inline bool CustomMap::structNotEmpty() {
     if (vec->getCapacity() == 0) {
       return false;
     }
-    else return true;
+    else {
+     return true;
+    }
   }
 }
 
-unsigned int CustomMap::hash(char* str)
+unsigned int CustomMap::hash(std::string str)
 {
   unsigned int hash = 5381;
   int c;
-
-  while (c = *str++)
+  int i = 0;
+  while (c = str[i++])
     hash = ((hash << 5) + hash) + c;
 
   return hash % vec->getSize();
 }
+
+//std::string CustomMap::stringToChar(string toConvert) {
+//  std::string toConvertChars = new char[toConvert.length() + 1];
+//  strcpy(toConvertChars, toConvert.c_str());
+//  return toConvertChars;
+//}

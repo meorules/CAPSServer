@@ -5,6 +5,7 @@
 #include "StringRequestParser.h"
 #include "DataStructureAPI.h"
 #include "UnorderedMap.h"
+#include "CustomMap.h"
 #include <iostream>
 #include <algorithm>
 #include <string>
@@ -23,10 +24,16 @@ This will also mean another lock on the array for each specific topic.
 - Test the std::unordered_map vs my own implementation
 */
 
+
 #define DEFAULT_PORT 12345
 //#define preMadeParser
+#define CustomMAP
 
+#ifdef CustomMAP
+DataStructureAPI* dataStructure = new CustomMap();
+#else 
 DataStructureAPI* dataStructure = new UnorderedMap();
+#endif
 
 bool terminateServer = false;
 

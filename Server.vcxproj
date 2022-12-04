@@ -102,7 +102,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
@@ -130,7 +130,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="CustomMap.h" />
+    <ClInclude Include="CustomVector.h" />
     <ClInclude Include="DataStructureAPI.h" />
+    <ClInclude Include="HashNode.h" />
     <ClInclude Include="ParsedRequest.h" />
     <ClInclude Include="ReceivedSocketData.h" />
     <ClInclude Include="RequestParser.h" />
