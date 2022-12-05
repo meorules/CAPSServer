@@ -84,4 +84,8 @@
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Diagnostics Sessions\RegexParsingNoThreadPoolTopicMap.diagsession" />
+    <None Include="Diagnostics Sessions\StringParsingNoThreadPoolTopicMap.diagsession" />
+  </ItemGroup>
 </Project>

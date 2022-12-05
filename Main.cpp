@@ -17,9 +17,6 @@
 
 /* To do List:
 *
-- Custom data structure, an array containing a pointer for each topic to various arrays. 
-This will allow the arrays to be accessed on their own and the critical section to be very small, it also means
-once the pointer to the array of messages in a topic is found, it can unlock the "dictionary" array/ data structure 
 This will also mean another lock on the array for each specific topic.
 -Lock free Data Structure - https://github.com/Qarterd/Honeycomb/blob/master/src/common/Honey/Thread/LockFree/UnorderedMap.h
 - Test the thread-pooling for all the tasks, for split tasks and normal threading
@@ -29,8 +26,8 @@ This will also mean another lock on the array for each specific topic.
 
 //#define THREADPOOL
 #define DEFAULT_PORT 12345
-//#define preMadeParser
-#define CustomMAP
+#define preMadeParser
+//#define CustomMAP
 
 #ifdef CustomMAP
 DataStructureAPI* dataStructure = new topicLockMap();

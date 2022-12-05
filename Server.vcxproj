@@ -154,6 +154,10 @@
     <ClCompile Include="TCPClient.cpp" />
     <ClCompile Include="TCPServer.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Diagnostics Sessions\RegexParsingNoThreadPoolTopicMap.diagsession" />
+    <None Include="Diagnostics Sessions\StringParsingNoThreadPoolTopicMap.diagsession" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
