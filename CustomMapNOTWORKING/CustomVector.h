@@ -103,7 +103,7 @@ private:
     for (int i = 0; i < capacity+1; i++) {
       newArray[i] = array[i];
     }
-    free(array);
+    delete (array);
     array = newArray;
 
     size = size * 2;

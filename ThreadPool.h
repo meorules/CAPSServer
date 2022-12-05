@@ -6,6 +6,7 @@
 #include <functional>
 #include <stdexcept>
 #include <future>
+#include <utility>
 
 class ThreadPool
 {
@@ -13,9 +14,11 @@ public:
   
   ThreadPool(int numberOfThreads= std::thread::hardware_concurrency());
   ~ThreadPool(){}
-  template<class F, class... Args>
-  auto QueueJob(F&& f, Args&&... args)
-    ->std::future<typename std::invoke_result<F(Args...)>::type>;
+  void QueueJob(const std::function<void()>& job);
+
+  //template<class F, class... Args>
+  //inline void enqueue(F&& f, Args&&... args);
+
   void Stop();
 
 private:
@@ -60,28 +63,28 @@ inline void ThreadPool::ThreadLoop() {
 
 }
 
-template<class F, class... Args>
-inline auto QueueJob(F&& f, Args&&... args)
-->std::future<typename std::invoke_result<F(Args...)>::type> {
-
-  using return_type = typename std::invoke_result<F(Args...)>::type;
-
-  auto task = std::make_shared< std::packaged_task<return_type()> >(
-    std::bind(std::forward<F>(f), std::forward<Args>(args)...)
-    );
-
-  std::future<return_type> res = task->get_future();
-
+inline void ThreadPool::QueueJob(const std::function<void()>& job) {
   if (!terminate) {
     std::unique_lock <std::mutex> lock(queue_mutex);
-    
-    jobQueue.emplace([task]() { (*task)(); });
+    jobQueue.push(job);
     cvJobQueue.notify_one();
   }
-
-  return res;
-
 }
+
+//template<class F, class... Args>
+//inline void ThreadPool::enqueue(F&& f, Args&&... args) {
+//
+//  auto task = std::bind(std::forward<F>(f), std::forward<Args>(args)...);
+//
+//  if (!terminate) {
+//    std::unique_lock <std::mutex> lock(queue_mutex);
+//    
+//    jobQueue.emplace(task);
+//    cvJobQueue.notify_one();
+//  }
+//
+//
+//}
 
 inline void ThreadPool::Stop() {
   {

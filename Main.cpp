@@ -5,7 +5,10 @@
 #include "StringRequestParser.h"
 #include "DataStructureAPI.h"
 #include "UnorderedMap.h"
-#include "CustomMap.h"
+#include "CustomMapNOTWORKING/CustomMap.h"
+#include "topicLockMap.h"
+
+
 #include <iostream>
 #include <algorithm>
 #include <string>
@@ -24,13 +27,13 @@ This will also mean another lock on the array for each specific topic.
 - Test the std::unordered_map vs my own implementation
 */
 
-
+//#define THREADPOOL
 #define DEFAULT_PORT 12345
 //#define preMadeParser
 #define CustomMAP
 
 #ifdef CustomMAP
-DataStructureAPI* dataStructure = new CustomMap();
+DataStructureAPI* dataStructure = new topicLockMap();
 #else 
 DataStructureAPI* dataStructure = new UnorderedMap();
 #endif
@@ -186,11 +189,37 @@ void parseRequest(TCPServer* server, ReceivedSocketData&& data) {
 
 int main()
 {
+
+#ifdef THREADPOOL
+
 	TCPServer server(DEFAULT_PORT);
-
-
 	ReceivedSocketData receivedData;
-	//ThreadPool* threadPool = new ThreadPool();
+	ThreadPool* threadPool = new ThreadPool();
+
+	std::cout << "Starting server. Send \"exit\" (without quotes) to terminate." << std::endl;
+
+	while (!terminateServer)
+	{
+		receivedData = server.accept();
+
+		if (!terminateServer)
+		{
+			//threadPool->QueueJob(parseRequest,&server, receivedData );
+			
+			//threadPool->enqueue(parseRequest,&server, receivedData);
+			//threadPool->QueueJob(parseRequest);
+		}
+	}
+
+	threadPool->Stop();
+
+	std::cout << "Server terminated." << std::endl;
+	delete threadPool;
+	return 0;
+
+#else
+	TCPServer server(DEFAULT_PORT);
+	ReceivedSocketData receivedData;
 	std::vector<std::thread> serverThreads;
 
 	std::cout << "Starting server. Send \"exit\" (without quotes) to terminate." << std::endl;
@@ -201,15 +230,7 @@ int main()
 
 		if (!terminateServer)
 		{
-
-			//parse the data and then do something with it
-			//serverThreads.emplace_back(serverThreadFunction, &server, receivedData);
-			// 
-			//The function first and then the arguements
-			/*serverThreads.emplace_back(parseRequest, &server, receivedData);*/
 			serverThreads.emplace_back(parseRequest, &server, receivedData);
-			//threadPool->QueueJob(parseRequest, &server, receivedData);
-			//parseRequest(&server, receivedData);
 		}
 	}
 
@@ -217,9 +238,9 @@ int main()
 	for (auto& th : serverThreads)
 		th.join();
 
-	//threadPool->Stop();
-
 	std::cout << "Server terminated." << std::endl;
-	//delete threadPool;
 	return 0;
+
+#endif
+
 }
