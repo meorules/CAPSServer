@@ -44,7 +44,6 @@ inline int topicLockMap::PostFunction(string topic, string message)
 {
   int messageId;
   if (TopicExists(topic)) {
-    shared_lock<shared_mutex> mutex(lock);
     topicLock* topicArray = dataStructure->at(topic);
      messageId = topicArray->push(message);
      return messageId;
@@ -53,7 +52,6 @@ inline int topicLockMap::PostFunction(string topic, string message)
     topicLock* topicArray = new topicLock(100);
     messageId = topicArray->push(message);
     {
-      unique_lock<shared_mutex> mutex(lock);
       dataStructure->insert({ topic, topicArray });
     }
     return messageId;
@@ -69,7 +67,6 @@ inline string topicLockMap::ListFunction()
   string topicList = "";
   if (structNotEmpty()) {
     {
-      shared_lock<shared_mutex> mutex(lock);
       unordered_map<string, topicLock*>::iterator it = dataStructure->begin();
       while (it != dataStructure->end()) {
         topicList.append(it->first + "#");
@@ -95,7 +92,6 @@ inline int topicLockMap::CountFunction(string topic)
   int messageCount = 0;
   
   if (TopicExists(topic)) {
-    shared_lock<shared_mutex> mutex(lock);
     messageCount = dataStructure->at(topic)->getCapacity();
   }
   return messageCount;
@@ -112,7 +108,6 @@ inline string topicLockMap::ReadFunction(string topic, int messagedID)
   string message="";
   
   if (TopicExists(topic)) {
-    shared_lock<shared_mutex> mutex(lock);
     if (dataStructure->at(topic)->getCapacity() > messagedID) {
       message = dataStructure->at(topic)->getMessage(messagedID);
     }
@@ -127,7 +122,6 @@ inline string topicLockMap::ReadFunction(string topic, int messagedID)
 inline bool topicLockMap::TopicExists(string topic) {
   {
     if (structNotEmpty()) {
-      shared_lock<shared_mutex> mutex(lock);
       return dataStructure->contains(topic);
     }
     else {
@@ -138,7 +132,6 @@ inline bool topicLockMap::TopicExists(string topic) {
 
 inline bool topicLockMap::structNotEmpty() {
   {
-    shared_lock<shared_mutex> mutex(lock);
     return !dataStructure->empty();
   }
 }

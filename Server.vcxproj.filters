@@ -42,15 +42,6 @@
     <ClInclude Include="ParsedRequest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CustomMap.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="HashNode.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="CustomVector.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="CustomMapNOTWORKING\CustomMap.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -87,5 +78,7 @@
   <ItemGroup>
     <None Include="Diagnostics Sessions\RegexParsingNoThreadPoolTopicMap.diagsession" />
     <None Include="Diagnostics Sessions\StringParsingNoThreadPoolTopicMap.diagsession" />
+    <None Include="Diagnostics Sessions\RegexParsingNoThreadPoolUnorderedMap.diagsession" />
+    <None Include="Diagnostics Sessions\StringParsingNoThreadPoolUnorderedMap.diagsession" />
   </ItemGroup>
 </Project>
