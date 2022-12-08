@@ -1,6 +1,5 @@
 #include "TCPServer.h"
 #include "TCPClient.h"
-//#include "ThreadPool.h"
 #include "ReceivedSocketData.h"
 #include "RequestParser.h"
 #include "StringRequestParser.h"
@@ -27,7 +26,7 @@ This will also mean another lock on the array for each specific topic.
 
 //#define THREADPOOL
 #define DEFAULT_PORT 12345
-//#define preMadeParser
+#define preMadeParser
 //#define CustomMAP
 
 #ifdef CustomMAP
@@ -45,7 +44,7 @@ void parseRequest(TCPServer* server, ReceivedSocketData&& data) {
 	unsigned int socketIndex = (unsigned int)data.ClientSocket;
 	
 	do {
-		server->receiveData(data, false);
+		server->receiveData(data, true);
 		bool requestProcessed = false;
 
 	#ifdef preMadeParser
@@ -130,7 +129,7 @@ void parseRequest(TCPServer* server, ReceivedSocketData&& data) {
 		switch (request->requestCommand) {
 		case requestToBeParsed::notSet: {
 			data.reply = "";
-			requestProcessed = true;
+			requestProcessed = false;
 			break;
 		}
 		case requestToBeParsed::post: {
@@ -166,6 +165,7 @@ void parseRequest(TCPServer* server, ReceivedSocketData&& data) {
 		}
 		if (requestProcessed) {
 			server->sendReply(data);
+			requestProcessed = false;
 		}
 		
 	#endif
