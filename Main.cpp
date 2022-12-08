@@ -26,8 +26,8 @@ This will also mean another lock on the array for each specific topic.
 
 //#define THREADPOOL
 #define DEFAULT_PORT 12345
-#define preMadeParser
-//#define CustomMAP
+//#define preMadeParser
+#define CustomMAP
 
 #ifdef CustomMAP
 DataStructureAPI* dataStructure = new topicLockMap();
