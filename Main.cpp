@@ -24,10 +24,10 @@ This will also mean another lock on the array for each specific topic.
 - Test the std::unordered_map vs my own implementation
 */
 
-//#define THREADPOOL
+//#define THREADPOOL REMOVED, do not uncomment
 #define DEFAULT_PORT 12345
 //#define preMadeParser
-#define CustomMAP
+//#define CustomMAP
 
 #ifdef CustomMAP
 DataStructureAPI* dataStructure = new topicLockMap();
@@ -45,10 +45,10 @@ void parseRequest(TCPServer* server, ReceivedSocketData&& data) {
 	
 	do {
 		server->receiveData(data, true);
-		bool requestProcessed = false;
 
 	#ifdef preMadeParser
-		
+		bool requestProcessed = false;
+
 
 		PostRequest* request = new PostRequest();
 		request->parse(data.request);
@@ -129,43 +129,38 @@ void parseRequest(TCPServer* server, ReceivedSocketData&& data) {
 		switch (request->requestCommand) {
 		case requestToBeParsed::notSet: {
 			data.reply = "";
-			requestProcessed = false;
 			break;
 		}
 		case requestToBeParsed::post: {
 			int id = dataStructure->PostFunction(request->getTopic(), request->getMessage());
 			data.reply = to_string(id);
-			requestProcessed = true;
+			server->sendReply(data);
 			break;
 		}
 		case requestToBeParsed::read: {
 			string message = dataStructure->ReadFunction(request->getTopic(), request->getMessageID());
 			data.reply = message;
-			requestProcessed = true;
+			server->sendReply(data);
 			break;
 		}
 		case requestToBeParsed::list: {
 			string topicList = dataStructure->ListFunction();
 			data.reply = topicList;
-			requestProcessed = true;
+			server->sendReply(data);
 			break;
 		}
 		case requestToBeParsed::count: {
 			int noOfMessages = dataStructure->CountFunction(request->getTopic());
 			data.reply = std::to_string(noOfMessages);
-			requestProcessed = true;
+			server->sendReply(data);
 			break;
 		}
 		case requestToBeParsed::ex: {
 			data.reply = "Terminating";
 			terminateServer = true;
-			requestProcessed = true;
+			server->sendReply(data);
 			break;
 		}
-		}
-		if (requestProcessed) {
-			server->sendReply(data);
-			requestProcessed = false;
 		}
 		
 	#endif

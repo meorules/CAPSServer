@@ -16,31 +16,31 @@ public:
  * message is the message added the topic specified.
  * @return an int value corresponding to the id of the message which was saved
  */
-  virtual int PostFunction(string topic, string message) = 0;
+  virtual const int PostFunction(string topic, string message) = 0;
 
   /**
  * @return a string containing the topics list seperated by @ and #
  */
-  virtual string ListFunction() = 0;
+  virtual const string ListFunction() = 0;
 
   /**
  * @param Takes a topic to check
  * @return an int value corresponding to the number of messages for the topic provided,
  * returns 0 if topic does not exist
  */
-  virtual int CountFunction(string topic) = 0;
+  virtual const int CountFunction(string topic) = 0;
 
   /**
  * @param Topic corresponding to the post, the messageID for the int id where the message is saved
  * @return the string value of the message, if no message is found, a blank string will be returned
  */
-  virtual string ReadFunction(string topic, int messagedID) = 0;
+  virtual const string ReadFunction(string topic, int messagedID) = 0;
 
 
-  virtual bool TopicExists(string topic) = 0;
-  virtual bool structNotEmpty()=0;
+  virtual const bool TopicExists(string topic) = 0;
+  virtual const bool structNotEmpty()=0;
 
-  string truncateString(string toTruncate);
+  const string truncateString(string toTruncate);
 
 
 private:
@@ -72,7 +72,7 @@ inline DataStructureAPI::~DataStructureAPI()
  * @param the string to be truncated, will truncate strings if they exceed 140 characters
  * @return the truncated string
  */
-string DataStructureAPI::truncateString(string toTruncate) {
+const string DataStructureAPI::truncateString(string toTruncate) {
   if (toTruncate.length() > 140)
     toTruncate.resize(140);
   return toTruncate;

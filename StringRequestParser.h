@@ -2,6 +2,7 @@
 #include <string>
 #include <vector>
 #include "ParsedRequest.h"
+#include <locale>
 
 using namespace std;
 

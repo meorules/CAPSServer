@@ -13,11 +13,11 @@ public:
   CustomMap();
   ~CustomMap();
 
-  int PostFunction(string topic, string message);
-  string ListFunction();
-  int CountFunction(string topic);
-  string ReadFunction(string topic, int messagedID);
-  bool TopicExists(string topic);
+  const int PostFunction(string topic, string message);
+  const string ListFunction();
+  const int CountFunction(string topic);
+  const string ReadFunction(string topic, int messagedID);
+  const bool TopicExists(string topic);
 
 
 private:
@@ -25,7 +25,7 @@ private:
   unsigned int hash(std::string str);
 
   //std::string stringToChar(string toConvert);
-  bool structNotEmpty();
+  const bool structNotEmpty();
 
 };
 
@@ -43,7 +43,7 @@ inline CustomMap::~CustomMap() {
  * message is the message added the topic specified.
  * @return an int value corresponding to the id of the message which was saved
  */
-inline int CustomMap::PostFunction(string topic, string message)
+inline const int CustomMap::PostFunction(string topic, string message)
 {
 
 
@@ -92,7 +92,7 @@ inline int CustomMap::PostFunction(string topic, string message)
 /**
  * @return a string containing the topics list seperated by #
  */
-inline string CustomMap::ListFunction()
+inline const string CustomMap::ListFunction()
 {
   HashNode<CustomVector<std::string>>* topicArray;
   string topicList = ""; 
@@ -125,7 +125,7 @@ inline string CustomMap::ListFunction()
  * @return an int value corresponding to the number of messages for the topic provided,
  * returns 0 if topic does not exist
  */
-inline int CustomMap::CountFunction(string topic)
+inline const int CustomMap::CountFunction(string topic)
 {
   HashNode<CustomVector<std::string>>* currentArray;
   bool found = false;
@@ -161,7 +161,7 @@ inline int CustomMap::CountFunction(string topic)
  * @param Topic corresponding to the post, the messageID for the int id where the message is saved
  * @return the string value of the message, if no message is found, a blank string will be returned
  */
-inline string CustomMap::ReadFunction(string topic, int messagedID)
+inline const string CustomMap::ReadFunction(string topic, int messagedID)
 {
   
   HashNode<CustomVector<std::string>>* currentArray;
@@ -198,7 +198,7 @@ inline string CustomMap::ReadFunction(string topic, int messagedID)
  * @param Topic to be searched for
  * @return bool value, True if the topic is found, False if the topic does not exist
  */
-inline bool CustomMap::TopicExists(string topic) {
+inline const bool CustomMap::TopicExists(string topic) {
   
     if (structNotEmpty()) {
       HashNode<CustomVector<std::string>>* topicArray;
@@ -228,7 +228,7 @@ inline bool CustomMap::TopicExists(string topic) {
   
 }
 
-inline bool CustomMap::structNotEmpty() {
+inline const bool CustomMap::structNotEmpty() {
   {
     if (vec->getCapacity() == 0) {
       return false;
