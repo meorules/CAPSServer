@@ -53,7 +53,7 @@ inline int UnorderedMap::PostFunction(string topic, string message)
       topicArray = new vector<string>;
       topicArray->push_back(message);
 
-      dataStructure->insert({ topic, topicArray });
+      dataStructure->emplace(topic, topicArray);
       return topicArray->size() - 1;
     }
   }
@@ -62,7 +62,7 @@ inline int UnorderedMap::PostFunction(string topic, string message)
     topicArray = new vector<string>;
     topicArray->push_back(message);
 
-    dataStructure->insert({ topic, topicArray });
+    dataStructure->emplace(topic, topicArray);
     return topicArray->size() - 1;
 
   }

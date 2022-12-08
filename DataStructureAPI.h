@@ -11,8 +11,6 @@ public:
   DataStructureAPI();
   ~DataStructureAPI();
 
-  DataStructureAPI* initialiseStructure(bool custom=false);
-
   /**
  * @param Topic is the topic for which the post needs to take place, topics are created if they dont exist.
  * message is the message added the topic specified.

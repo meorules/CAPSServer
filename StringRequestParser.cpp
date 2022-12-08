@@ -1,16 +1,8 @@
 #include "StringRequestParser.h"
 
-//requestToBeParsed{
-//  notSet,post, read, list, count, exit
-
-
 ParsedRequest* StringRequestParser::parseRequest(string request)
 {
   ParsedRequest* toBeReturned = new ParsedRequest();
-  toBeReturned->requestCommand;
-  toBeReturned->messageID;
-  toBeReturned->topicId;
-  toBeReturned->message;
 
   if (request != "") {
     if (request == "EXIT" && request== "exit")

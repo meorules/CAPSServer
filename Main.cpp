@@ -1,6 +1,6 @@
 #include "TCPServer.h"
 #include "TCPClient.h"
-#include "ThreadPool.h"
+//#include "ThreadPool.h"
 #include "ReceivedSocketData.h"
 #include "RequestParser.h"
 #include "StringRequestParser.h"
@@ -25,10 +25,10 @@ This will also mean another lock on the array for each specific topic.
 - Test the std::unordered_map vs my own implementation
 */
 
-#define THREADPOOL
+//#define THREADPOOL
 #define DEFAULT_PORT 12345
 //#define preMadeParser
-#define CustomMAP
+//#define CustomMAP
 
 #ifdef CustomMAP
 DataStructureAPI* dataStructure = new topicLockMap();
