@@ -135,6 +135,7 @@
     <ClInclude Include="CustomMapNOTWORKING\CustomVector.h" />
     <ClInclude Include="CustomMapNOTWORKING\HashNode.h" />
     <ClInclude Include="DataStructureAPI.h" />
+    <ClInclude Include="NoLockUnorderedMap.h" />
     <ClInclude Include="ParsedRequest.h" />
     <ClInclude Include="ReceivedSocketData.h" />
     <ClInclude Include="RequestParser.h" />
@@ -145,6 +146,7 @@
     <ClInclude Include="topicLock.h" />
     <ClInclude Include="topicLockMap.h" />
     <ClInclude Include="UnorderedMap.h" />
+    <ClInclude Include="UnorderedMapStringArray.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp" />
@@ -152,6 +154,7 @@
     <ClCompile Include="StringRequestParser.cpp" />
     <ClCompile Include="TCPClient.cpp" />
     <ClCompile Include="TCPServer.cpp" />
+    <ClCompile Include="UnorderedMapStringArray.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Diagnostics Sessions\RegexParsingNoThreadPoolTopicMap.diagsession" />

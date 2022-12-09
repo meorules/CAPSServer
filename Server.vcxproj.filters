@@ -57,6 +57,12 @@
     <ClInclude Include="topicLock.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="NoLockUnorderedMap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="UnorderedMapStringArray.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="TCPClient.cpp">
@@ -72,6 +78,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="StringRequestParser.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="UnorderedMapStringArray.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

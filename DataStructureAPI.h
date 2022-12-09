@@ -16,7 +16,7 @@ public:
  * message is the message added the topic specified.
  * @return an int value corresponding to the id of the message which was saved
  */
-  virtual const int PostFunction(string topic, string message) = 0;
+  virtual const inline int PostFunction(string topic, string message) { return -1; }
 
   /**
  * @return a string containing the topics list seperated by @ and #
@@ -72,7 +72,7 @@ inline DataStructureAPI::~DataStructureAPI()
  * @param the string to be truncated, will truncate strings if they exceed 140 characters
  * @return the truncated string
  */
-const string DataStructureAPI::truncateString(string toTruncate) {
+inline const string DataStructureAPI::truncateString(string toTruncate) {
   if (toTruncate.length() > 140)
     toTruncate.resize(140);
   return toTruncate;

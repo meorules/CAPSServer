@@ -7,7 +7,8 @@
 #include "UnorderedMap.h"
 #include "CustomMapNOTWORKING/CustomMap.h"
 #include "topicLockMap.h"
-
+#include "NoLockUnorderedMap.h"
+#include "UnorderedMapStringArray.h"
 
 #include <iostream>
 #include <algorithm>
@@ -24,16 +25,12 @@ This will also mean another lock on the array for each specific topic.
 - Test the std::unordered_map vs my own implementation
 */
 
-//#define THREADPOOL REMOVED, do not uncomment
 #define DEFAULT_PORT 12345
 //#define preMadeParser
-//#define CustomMAP
 
-#ifdef CustomMAP
-DataStructureAPI* dataStructure = new topicLockMap();
-#else 
-DataStructureAPI* dataStructure = new UnorderedMap();
-#endif
+
+
+//DataStructureAPI* bigDataStructure = new UnorderedMapStringArray();
 
 bool terminateServer = false;
 
@@ -42,90 +39,17 @@ bool terminateServer = false;
 
 void parseRequest(TCPServer* server, ReceivedSocketData&& data) {
 	unsigned int socketIndex = (unsigned int)data.ClientSocket;
+
+	StringRequestParser parser;
+	ParsedRequest* request;
+	DataStructureAPI* dataStructure = new NoLockUnorderedMap();
+
 	
 	do {
 		server->receiveData(data, true);
-
-	#ifdef preMadeParser
-		bool requestProcessed = false;
-
-
-		PostRequest* request = new PostRequest();
-		request->parse(data.request);
-
-		if (request->valid)
-		{
-			int id = dataStructure->PostFunction(request->getTopicId(), request->getMessage());
-			data.reply = to_string(id);
-			requestProcessed = true;
-		}
-
-
-		if (!requestProcessed) {
-			ReadRequest* request = new ReadRequest();
-			request->parse(data.request);
-			if (request->valid)
-			{
-
-				string message = dataStructure->ReadFunction(request->getTopicId(), request->getPostId());
-				data.reply = message;
-				requestProcessed = true;
-			}
-		}
-
-		if (!requestProcessed) {
-			ListRequest* request = new ListRequest();
-			request->parse(data.request);
-			if (request->valid)
-			{
-				string topicList = dataStructure->ListFunction();
-				data.reply = topicList;
-				requestProcessed = true;
-
-			}
-		}
-
-		if (!requestProcessed) {
-			CountRequest* request = new CountRequest();
-			request->parse(data.request);
-			if (request->valid)
-			{
-
-				int noOfMessages = dataStructure->CountFunction(request->getTopicId());
-				data.reply = std::to_string(noOfMessages);
-				requestProcessed = true;
-
-			}
-		}
-
-		if (!requestProcessed) {
-			ExitRequest* request = new ExitRequest();
-			request->parse(data.request);
-			if (request->valid)
-			{
-				terminateServer = true;
-				data.reply = "Terminating";
-				requestProcessed = true;
-
-			}
-		}
-
 		
-
-		if (requestProcessed) {
-			server->sendReply(data);
-		}
-		request = NULL;
-		requestProcessed = false;
-
-	//server->closeClientSocket(data);
-	#else
-		StringRequestParser parser;
-		ParsedRequest* request;
 		request = parser.parseRequest(data.request);
-		/*enum requestToBeParsed {
-			notSet, post, read, list, count, exit
-		};*/
+
 		switch (request->requestCommand) {
 		case requestToBeParsed::notSet: {
 			data.reply = "";
@@ -162,9 +86,6 @@ void parseRequest(TCPServer* server, ReceivedSocketData&& data) {
 			break;
 		}
 		}
-		
-	#endif
-	
 
 	} while (data.request != "exit" && data.request != "EXIT" && !terminateServer);
 	if (!terminateServer && (data.request == "exit" || data.request == "EXIT"))
