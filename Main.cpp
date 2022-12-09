@@ -7,7 +7,8 @@
 #include "UnorderedMap.h"
 #include "CustomMapNOTWORKING/CustomMap.h"
 #include "topicLockMap.h"
-
+#include "NoLockUnorderedMap.h"
+#include "UnorderedMapStringArray.h"
 
 #include <iostream>
 #include <algorithm>
@@ -24,16 +25,12 @@ This will also mean another lock on the array for each specific topic.
 - Test the std::unordered_map vs my own implementation
 */
 
-//#define THREADPOOL
 #define DEFAULT_PORT 12345
-#define preMadeParser
-//#define CustomMAP
+//#define preMadeParser
 
-#ifdef CustomMAP
-DataStructureAPI* dataStructure = new topicLockMap();
-#else 
-DataStructureAPI* dataStructure = new UnorderedMap();
-#endif
+
+
+//DataStructureAPI* bigDataStructure = new UnorderedMapStringArray();
 
 bool terminateServer = false;
 
@@ -42,134 +39,53 @@ bool terminateServer = false;
 
 void parseRequest(TCPServer* server, ReceivedSocketData&& data) {
 	unsigned int socketIndex = (unsigned int)data.ClientSocket;
+
+	StringRequestParser parser;
+	ParsedRequest* request;
+	DataStructureAPI* dataStructure = new NoLockUnorderedMap();
+
 	
 	do {
 		server->receiveData(data, true);
-		bool requestProcessed = false;
-
-	#ifdef preMadeParser
 		
-
-		PostRequest* request = new PostRequest();
-		request->parse(data.request);
-
-		if (request->valid)
-		{
-			int id = dataStructure->PostFunction(request->getTopicId(), request->getMessage());
-			data.reply = to_string(id);
-			requestProcessed = true;
-		}
-
-
-		if (!requestProcessed) {
-			ReadRequest* request = new ReadRequest();
-			request->parse(data.request);
-			if (request->valid)
-			{
-
-				string message = dataStructure->ReadFunction(request->getTopicId(), request->getPostId());
-				data.reply = message;
-				requestProcessed = true;
-			}
-		}
-
-		if (!requestProcessed) {
-			ListRequest* request = new ListRequest();
-			request->parse(data.request);
-			if (request->valid)
-			{
-				string topicList = dataStructure->ListFunction();
-				data.reply = topicList;
-				requestProcessed = true;
-
-			}
-		}
-
-		if (!requestProcessed) {
-			CountRequest* request = new CountRequest();
-			request->parse(data.request);
-			if (request->valid)
-			{
-
-				int noOfMessages = dataStructure->CountFunction(request->getTopicId());
-				data.reply = std::to_string(noOfMessages);
-				requestProcessed = true;
-
-			}
-		}
-
-		if (!requestProcessed) {
-			ExitRequest* request = new ExitRequest();
-			request->parse(data.request);
-			if (request->valid)
-			{
-				terminateServer = true;
-				data.reply = "Terminating";
-				requestProcessed = true;
-
-			}
-		}
-
-		
-
-		if (requestProcessed) {
-			server->sendReply(data);
-		}
-		request = NULL;
-		requestProcessed = false;
-
-	//server->closeClientSocket(data);
-	#else
-		StringRequestParser parser;
-		ParsedRequest* request;
 		request = parser.parseRequest(data.request);
-		/*enum requestToBeParsed {
-			notSet, post, read, list, count, exit
-		};*/
+
 		switch (request->requestCommand) {
 		case requestToBeParsed::notSet: {
 			data.reply = "";
-			requestProcessed = false;
 			break;
 		}
 		case requestToBeParsed::post: {
 			int id = dataStructure->PostFunction(request->getTopic(), request->getMessage());
 			data.reply = to_string(id);
-			requestProcessed = true;
+			server->sendReply(data);
 			break;
 		}
 		case requestToBeParsed::read: {
 			string message = dataStructure->ReadFunction(request->getTopic(), request->getMessageID());
 			data.reply = message;
-			requestProcessed = true;
+			server->sendReply(data);
 			break;
 		}
 		case requestToBeParsed::list: {
 			string topicList = dataStructure->ListFunction();
 			data.reply = topicList;
-			requestProcessed = true;
+			server->sendReply(data);
 			break;
 		}
 		case requestToBeParsed::count: {
 			int noOfMessages = dataStructure->CountFunction(request->getTopic());
 			data.reply = std::to_string(noOfMessages);
-			requestProcessed = true;
+			server->sendReply(data);
 			break;
 		}
 		case requestToBeParsed::ex: {
 			data.reply = "Terminating";
 			terminateServer = true;
-			requestProcessed = true;
+			server->sendReply(data);
 			break;
 		}
 		}
-		if (requestProcessed) {
-			server->sendReply(data);
-			requestProcessed = false;
-		}
-		
-	#endif
-	
 
 	} while (data.request != "exit" && data.request != "EXIT" && !terminateServer);
 	if (!terminateServer && (data.request == "exit" || data.request == "EXIT"))
