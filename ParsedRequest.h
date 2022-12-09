@@ -16,6 +16,7 @@ public:
   int getMessageID();
 
   friend class StringRequestParser;
+
   requestToBeParsed requestCommand;
 
   
