@@ -10,16 +10,16 @@ public:
   NoLockUnorderedMap();
   ~NoLockUnorderedMap();
 
-  int PostFunction(string topic, string message);
-  string ListFunction();
-  int CountFunction(string topic);
-  string ReadFunction(string topic, int messagedID);
-  bool TopicExists(string topic);
+  const int PostFunction(string topic, string message);
+  const string ListFunction();
+  const int CountFunction(string topic);
+  const string ReadFunction(string topic, int messagedID);
+  const bool TopicExists(string topic);
 
 
 private:
   unordered_map<string, vector<string>*>* dataStructure;
-  bool structNotEmpty();
+  const bool structNotEmpty();
 
 
 };
@@ -38,7 +38,7 @@ inline NoLockUnorderedMap::~NoLockUnorderedMap() {
  * message is the message added the topic specified.
  * @return an int value corresponding to the id of the message which was saved
  */
-inline int NoLockUnorderedMap::PostFunction(string topic, string message)
+inline const int NoLockUnorderedMap::PostFunction(string topic, string message)
 {
   vector<string>* topicArray;
   if (structNotEmpty()) {
@@ -71,7 +71,7 @@ inline int NoLockUnorderedMap::PostFunction(string topic, string message)
 /**
  * @return a string containing the topics list seperated by @ and #
  */
-inline string NoLockUnorderedMap::ListFunction()
+inline const string NoLockUnorderedMap::ListFunction()
 {
   string topicList = "";
   if (structNotEmpty()) {
@@ -96,7 +96,7 @@ inline string NoLockUnorderedMap::ListFunction()
  * @return an int value corresponding to the number of messages for the topic provided,
  * returns 0 if topic does not exist
  */
-inline int NoLockUnorderedMap::CountFunction(string topic)
+inline const int NoLockUnorderedMap::CountFunction(string topic)
 {
   int messageCount = 0;
   if (structNotEmpty()) {
@@ -113,7 +113,7 @@ inline int NoLockUnorderedMap::CountFunction(string topic)
  * @param Topic corresponding to the post, the messageID for the int id where the message is saved
  * @return the string value of the message, if no message is found, a blank string will be returned
  */
-inline string NoLockUnorderedMap::ReadFunction(string topic, int messagedID)
+inline const string NoLockUnorderedMap::ReadFunction(string topic, int messagedID)
 {
   string message="";
   if (structNotEmpty()) {
@@ -130,13 +130,13 @@ inline string NoLockUnorderedMap::ReadFunction(string topic, int messagedID)
  * @param Topic to be searched for
  * @return bool value, True if the topic is found, False if the topic does not exist
  */
-inline bool NoLockUnorderedMap::TopicExists(string topic) {
+inline const bool NoLockUnorderedMap::TopicExists(string topic) {
   {
     return dataStructure->contains(topic);
   }
 }
 
-inline bool NoLockUnorderedMap::structNotEmpty() {
+inline const bool NoLockUnorderedMap::structNotEmpty() {
   {
     return !dataStructure->empty();
   }

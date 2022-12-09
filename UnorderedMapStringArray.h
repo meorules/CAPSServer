@@ -14,15 +14,15 @@ public:
   string findReadTopic();
   int findReadMessage(string topic);
 
-  string ListFunction();
-  int CountFunction(string topic);
-  string ReadFunction(string topic, int messagedID);
-  bool TopicExists(string topic);
+  const string ListFunction();
+  const int CountFunction(string topic);
+  const string ReadFunction(string topic, int messagedID);
+  const bool TopicExists(string topic);
 
 
 private:
   unordered_map<string, string*>* dataStructure;
-  bool structNotEmpty();
+  const bool structNotEmpty();
   vector<string>* keyList;
 
   static const unsigned int ARRAY_SIZE = 100;

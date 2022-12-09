@@ -57,7 +57,7 @@ void UnorderedMapStringArray::PostFunction(string topic, string message, int id)
 /*
  * @return a string containing the topics list seperated by @ and #
  */
-string UnorderedMapStringArray::ListFunction()
+const string UnorderedMapStringArray::ListFunction()
 {
   string topicList = "";
   if (structNotEmpty()) {
@@ -83,7 +83,7 @@ string UnorderedMapStringArray::ListFunction()
  * @return an int value corresponding to the number of messages for the topic provided,
  * returns 0 if topic does not exist
  */
-int UnorderedMapStringArray::CountFunction(string topic)
+const int UnorderedMapStringArray::CountFunction(string topic)
 {
   int messageCount = 0;
   if (structNotEmpty()) {
@@ -123,7 +123,7 @@ int UnorderedMapStringArray::findReadMessage(string topic) {
  * @param Topic corresponding to the post, the messageID for the int id where the message is saved
  * @return the string value of the message, if no message is found, a blank string will be returned
  */
-string UnorderedMapStringArray::ReadFunction(string topic, int messagedID)
+const string UnorderedMapStringArray::ReadFunction(string topic, int messagedID)
 {
   string message = "";
   if (structNotEmpty()) {
@@ -141,14 +141,14 @@ string UnorderedMapStringArray::ReadFunction(string topic, int messagedID)
  * @param Topic to be searched for
  * @return bool value, True if the topic is found, False if the topic does not exist
  */
-bool UnorderedMapStringArray::TopicExists(string topic) {
+const bool UnorderedMapStringArray::TopicExists(string topic) {
   {
     shared_lock<shared_mutex> mutex(lock);
     return dataStructure->contains(topic);
   }
 }
 
-bool UnorderedMapStringArray::structNotEmpty() {
+const bool UnorderedMapStringArray::structNotEmpty() {
   {
     shared_lock<shared_mutex> mutex(lock);
     return !dataStructure->empty();
