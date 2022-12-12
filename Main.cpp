@@ -42,7 +42,7 @@ void parseRequest(TCPServer* server, ReceivedSocketData&& data) {
   unsigned int socketIndex = (unsigned int)data.ClientSocket;
 
   do {
-    server->receiveData(data, true);
+    server->receiveData(data);
     bool requestProcessed = false;
 
 #ifdef preMadeParser
@@ -118,8 +118,8 @@ void parseRequest(TCPServer* server, ReceivedSocketData&& data) {
 
     //server->closeClientSocket(data);
 #else
-    string request = data.request;
-    if (request != "") {
+    if (data.request != "") {
+      string request = data.request;
       if (request[0] == 'P') {
         if (request[1] == 'O' && request[2] == 'S' && request[3] == 'T' && request[4] == '@') {
           string messagePart = request.substr(4);

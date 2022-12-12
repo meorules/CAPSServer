@@ -131,7 +131,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="CustomMapNOTWORKING\HashNode.h" />
     <ClInclude Include="DataStructureAPI.h" />
     <ClInclude Include="ParsedRequest.h" />
     <ClInclude Include="ReceivedSocketData.h" />
