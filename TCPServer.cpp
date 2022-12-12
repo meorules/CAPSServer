@@ -26,9 +26,7 @@ TCPServer::TCPServer(unsigned short int port)
 {
   WSADATA wsaData;
   char portString[PORT_BUFFER_LEN];
-  iResult = new int();
-  pollDescriptor = new pollfd();
-  retval = new int();
+  int iResult;
 
   this->port = port;
 
@@ -36,8 +34,8 @@ TCPServer::TCPServer(unsigned short int port)
   this->portString = portString;
 
   // Initialize Winsock
-  *iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
-  if (*iResult != 0)
+  iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
+  if (iResult != 0)
   {
     printf("WSAStartup failed with error: %d\n", iResult);
     exit(1);
@@ -48,6 +46,7 @@ TCPServer::TCPServer(unsigned short int port)
 
 void TCPServer::OpenListenSocket()
 {
+  int iResult;
 
   ListenSocket = INVALID_SOCKET;
 
@@ -61,11 +60,11 @@ void TCPServer::OpenListenSocket()
   hints.ai_flags = AI_PASSIVE;
 
   // Resolve the server address and port
-  *iResult = getaddrinfo(NULL, portString.c_str(), &hints, &result);
+  iResult = getaddrinfo(NULL, portString.c_str(), &hints, &result);
   //iResult = getaddrinfo("127.0.0.1", portString.c_str(), &hints, &result);
-  if (*iResult != 0)
+  if (iResult != 0)
   {
-    printf("getaddrinfo failed with error: %d\n", *iResult);
+    printf("getaddrinfo failed with error: %d\n", iResult);
     WSACleanup();
     exit(1);
   }
@@ -81,8 +80,8 @@ void TCPServer::OpenListenSocket()
   }
 
   // Setup the TCP listening socket
-  *iResult = bind(ListenSocket, result->ai_addr, (int)result->ai_addrlen);
-  if (*iResult == SOCKET_ERROR)
+  iResult = bind(ListenSocket, result->ai_addr, (int)result->ai_addrlen);
+  if (iResult == SOCKET_ERROR)
   {
     printf("bind failed with error: %d\n", WSAGetLastError());
     freeaddrinfo(result);
@@ -93,8 +92,8 @@ void TCPServer::OpenListenSocket()
 
   freeaddrinfo(result);
 
-  *iResult = listen(ListenSocket, SOMAXCONN);
-  if (*iResult == SOCKET_ERROR)
+  iResult = listen(ListenSocket, SOMAXCONN);
+  if (iResult == SOCKET_ERROR)
   {
     printf("listen failed with error: %d\n", WSAGetLastError());
     closesocket(ListenSocket);
@@ -127,28 +126,31 @@ ReceivedSocketData TCPServer::accept()
 
 void TCPServer::receiveData(ReceivedSocketData& ret)
 {
+  int iResult;
   char recvbuf[DEFAULT_BUFLEN];
   int recvbuflen = DEFAULT_BUFLEN - 1;
+  struct pollfd pollDescriptor;
 
-  pollDescriptor->fd = ret.ClientSocket;
-  pollDescriptor->events = POLLIN;
-  pollDescriptor->revents = 0;
+  pollDescriptor.fd = ret.ClientSocket;
+  pollDescriptor.events = POLLIN;
+  pollDescriptor.revents = 0;
 
+  int retval;
 
   ret.request = "";
   ret.reply = "";
 #ifndef BLOCKING
-  *retval = WSAPoll(&*pollDescriptor, 1, 100); //timeout in ms
-  if (*retval > 0) {
+  retval = WSAPoll(&pollDescriptor, 1, 100); //timeout in ms
+  if (retval > 0) {
 
 #else
   if (true) {
 #endif // !BLOCKING
-    *iResult = recv(ret.ClientSocket, recvbuf, recvbuflen, 0);
+    iResult = recv(ret.ClientSocket, recvbuf, recvbuflen, 0);
 
-    if (*iResult > 0)
+    if (iResult > 0)
     {
-      recvbuf[*iResult] = '\0';
+      recvbuf[iResult] = '\0';
       ret.request = std::string(recvbuf);
     }
     //	else if (iResult == 0)
@@ -157,7 +159,7 @@ void TCPServer::receiveData(ReceivedSocketData& ret)
     //		printf("Received empty string. Terminating server.\n");
     //		ret.request = "";
     //	}
-    else if (*iResult < 0)
+    else if (iResult < 0)
     {
       int SocketError = WSAGetLastError();
 
@@ -198,10 +200,12 @@ int TCPServer::sendReply(ReceivedSocketData reply)
 
 int TCPServer::closeClientSocket(ReceivedSocketData & reply)
 {
-  // shutdown the connection since we're done
-  *iResult = shutdown(reply.ClientSocket, SD_SEND);
+  int iResult;
 
-  if (*iResult == SOCKET_ERROR)
+  // shutdown the connection since we're done
+  iResult = shutdown(reply.ClientSocket, SD_SEND);
+
+  if (iResult == SOCKET_ERROR)
   {
     printf("shutdown failed with error: %d\n", WSAGetLastError());
     closesocket(reply.ClientSocket);
@@ -212,7 +216,7 @@ int TCPServer::closeClientSocket(ReceivedSocketData & reply)
   // cleanup
   closesocket(reply.ClientSocket);
 
-  return *iResult;
+  return iResult;
 }
 
 void TCPServer::CloseListenSocket()

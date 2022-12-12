@@ -1,6 +1,6 @@
 #ifndef __TCPSERVER_H
 #define __TCPSERVER_H
-//#define BLOCKING
+#define BLOCKING
 
 #include "ReceivedSocketData.h"
 
@@ -21,10 +21,6 @@ private:
   SOCKET ListenSocket;
   unsigned short int port;
   std::string portString;
-
-  int* iResult;
-  struct pollfd* pollDescriptor;
-  int* retval;
 };
 
 #endif __TCPSERVER_H
