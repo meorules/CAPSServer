@@ -131,8 +131,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="CustomMapNOTWORKING\CustomMap.h" />
-    <ClInclude Include="CustomMapNOTWORKING\CustomVector.h" />
     <ClInclude Include="CustomMapNOTWORKING\HashNode.h" />
     <ClInclude Include="DataStructureAPI.h" />
     <ClInclude Include="ParsedRequest.h" />
@@ -142,8 +140,6 @@
     <ClInclude Include="TCPClient.h" />
     <ClInclude Include="TCPServer.h" />
     <ClInclude Include="ThreadPool.h" />
-    <ClInclude Include="topicLock.h" />
-    <ClInclude Include="topicLockMap.h" />
     <ClInclude Include="UnorderedMap.h" />
   </ItemGroup>
   <ItemGroup>

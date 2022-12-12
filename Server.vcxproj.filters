@@ -42,21 +42,6 @@
     <ClInclude Include="ParsedRequest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CustomMapNOTWORKING\CustomMap.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="CustomMapNOTWORKING\CustomVector.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="CustomMapNOTWORKING\HashNode.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="topicLockMap.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="topicLock.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="TCPClient.cpp">

@@ -5,10 +5,8 @@
 #include "StringRequestParser.h"
 #include "DataStructureAPI.h"
 #include "UnorderedMap.h"
-#include "CustomMapNOTWORKING/CustomMap.h"
-#include "topicLockMap.h"
 
-
+#include <string_view>
 #include <iostream>
 #include <algorithm>
 #include <string>
@@ -138,7 +136,7 @@ void parseRequest(TCPServer* server, ReceivedSocketData&& data) {
           string messagePart = request.substr(4);
           int hashFound = messagePart.find('#');
           if (hashFound != -1) {
-            string message = dataStructure->ReadFunction(messagePart.substr(0, hashFound), stoi(messagePart.substr(hashFound + 1)));
+            string_view message = dataStructure->ReadFunction(messagePart.substr(0, hashFound), stoi(messagePart.substr(hashFound + 1)));
             data.reply = message;
             server->sendReply(data);
           }
@@ -151,7 +149,7 @@ void parseRequest(TCPServer* server, ReceivedSocketData&& data) {
         server->sendReply(data);
       }
       else if (request == "LIST") {
-        string topicList = dataStructure->ListFunction();
+        string_view topicList = dataStructure->ListFunction();
         data.reply = topicList;
         server->sendReply(data);
       }
