@@ -13,16 +13,6 @@
 #include <thread>
 #include <vector>
 
-/* To do List:
-*
-This will also mean another lock on the array for each specific topic.
--Lock free Data Structure - https://github.com/Qarterd/Honeycomb/blob/master/src/common/Honey/Thread/LockFree/UnorderedMap.h
-- Test the thread-pooling for all the tasks, for split tasks and normal threading
-- Test the normal request parser vs Strings request parser
-- Test the std::unordered_map vs my own implementation
-*/
-
-//#define THREADPOOL
 #define DEFAULT_PORT 12345
 //#define preMadeParser
 //#define CustomMAP
